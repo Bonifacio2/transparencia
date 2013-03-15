@@ -11,14 +11,19 @@ import csv
 class TParser(HTMLParser, object):
 
     
-    def __init__(self):
+    def __init__(self, year):
         HTMLParser.__init__(self)
+        self.year = year
 
-        # fazer bonitinho. pra nao deixar essa referencia ao arquivo perdida no limbo
-        self.csv_writer = csv.writer(open('file.csv', 'ab'), delimiter=',')
+        if os.path.exists('file.csv'):
+            csv_file = open('file.csv', 'ab')
+            self.csv_writer = csv.writer(csv_file, delimiter=',')
+        else:
+            csv_file = open('file.csv', 'ab')
+            self.csv_writer = csv.writer(csv_file, delimiter=',')
+            self.csv_writer.writerow(['Funcao', 'Acao Governamental', 'Linguagem Cidada', 'Total no Ano(R$)', 'Ano'])
 
         self.parsing_td = False
-        self.parsing_th = False
         self.parsing_listagem = False
 
         self.temp_content = ''
@@ -28,40 +33,40 @@ class TParser(HTMLParser, object):
         if tag == 'td':
             self.parsing_td = True
 
-        if tag == 'th':
-            self.parsing_th = True
-
         if tag == 'div':
             for attr in attrs:
                 if attr[0] == 'id' and attr[1] == 'listagem':
                     self.parsing_listagem = True
 
+
     def handle_data(self, data):
 
-        if self.parsing_listagem and (self.parsing_td or self.parsing_th):
+        if self.parsing_listagem and self.parsing_td:
             data = data.replace('\n','').replace('\r','').replace('\t','').rstrip(' ').lstrip(' ')
             # precisa dessa checagem?
             if len(data) != 0:
                 self.temp_content += data
 
+
     def handle_endtag(self, tag):
-        if tag in ['td', 'th']:
+
+        if tag == 'td':
+            self.parsing_td = False
+
+        if self.parsing_listagem and tag == 'td':
             # precisa mesmo dessa checagem?
             if len(self.temp_content) > 0:
                 self.content_list.append(normalize('NFKD',self.temp_content).encode('ascii','ignore'))
-
-            if tag == 'td':
-                self.parsing_td = False
-            elif tag == 'th':
-                self.parsing_th = False
+            else:
+                self.content_list.append('')
 
             self.temp_content = ''
 
         if tag == 'table':
             if self.parsing_listagem:
                 self.parsing_listagem = False
-        if self.parsing_listagem and tag == 'tr':
-            print 'writing row'
+        if self.parsing_listagem and tag == 'tr' and len(self.content_list) > 0:
+            self.content_list.append(self.year)
             self.csv_writer.writerow(self.content_list)
             self.content_list = []
 
@@ -70,6 +75,7 @@ if __name__ == '__main__':
 
     # tratar entrada de estado e municipio
 
+    # corrigir data para fim em 2013
     years = range(2004, 2013)
 
     cod_mun = 2235
@@ -80,10 +86,6 @@ if __name__ == '__main__':
         counter = PageCounter()
         url = url_template % (year, cod_mun, 1)
 
-        # continuar daqui
-
-        print 'counting pages from year %d' % year
-        print url
         data = urlopen(url).read()
         data = unicode(data, 'iso-8859-1')
         counter.feed(data)
@@ -97,7 +99,7 @@ if __name__ == '__main__':
             data = urlopen(url).read()
             data = unicode(data, 'iso-8859-1')
 
-            parser = TParser()
+            parser = TParser(year)
             parser.feed(data)
     
     
