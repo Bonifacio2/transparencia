@@ -10,6 +10,12 @@ import csv
 
 class TParser(HTMLParser, object):
 
+    '''
+
+    essa classe tah com mais resposabilidades do que deveria
+
+    '''
+
     
     def __init__(self, year):
         HTMLParser.__init__(self)
