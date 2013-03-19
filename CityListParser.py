@@ -17,9 +17,9 @@ class CityListParser(HTMLParser, object):
         self.parsing_a = False
 
         self.temp_content = ''
-        self.content_list = []
+        self.city_list = []
 
-        # o codigo da cidade nao pode ser um int pra nao causar erros na hora de formar as urls.
+        # o codigo da cidade nao pode ser um int pra nao causar erros na hora de formar as urls. culpa do portal
         self.city_code = ''
         self.city_name = ''
 
@@ -39,7 +39,7 @@ class CityListParser(HTMLParser, object):
             for attr in attrs:
                 if attr[0] == 'href':
                     cut = attr[1][attr[1].find('CodMun=')+ 7:]
-                    # o codigo da cidade nao pode ser um int pra nao causar erros na hora de formar as urls.
+                    # o codigo da cidade nao pode ser um int pra nao causar erros na hora de formar as urls. culpa do portal
                     self.city_code = cut[:cut.find('&')]
 
 
@@ -63,37 +63,39 @@ class CityListParser(HTMLParser, object):
             print self.city_code, '-', self.city_name
             self.parsing_first_child = False
 
-            # TODO: decidir o que fazer com os dados retirados com o parser. mandar pra banco? apenar armazernar no objeto e criar metodos pra recuperar?
-
-            # essa lista pode ou nao ser mais necessaria
-            self.content_list = []
-
-
+            if len(self.city_name) > 0:
+                self.city_list.append((self.city_code, normalize('NFKD',self.city_name).encode('ascii','ignore')))
+    
         if self.parsing_first_child and tag == 'td':
-            # precisa mesmo dessa checagem?
-            if len(self.temp_content) > 0:
-                self.content_list.append(normalize('NFKD',self.temp_content).encode('ascii','ignore'))
-            else:
-                self.content_list.append('')
-
             self.parsing_first_child = False
 
         if tag == 'table':
             if self.parsing_listagem:
                 self.parsing_listagem = False
-                print self.content_list
+
+    def get_city_list(self):
+        return self.city_list
 
 if __name__ == '__main__':
 
     if len(sys.argv) == 1:
         print 'passe o argumento, meu filho'
     else:
-        uf = sys.argv[1]
+        uf = sys.argv[1].upper()
         ufs = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO']
         if uf not in ufs:
-            print 'uf invalido'
-            print 'os validos sao esses aqui:', ufs
+            print 'uf invalido. os validos sao os seguintes:', ufs
         else:
+
+            
+            if len(sys.argv) > 2:
+                # checa se ha um municipio com o codigo passado para a uf passada
+                pass
+            else:
+                pass
+                # lista codigo das cidades do estado selecionado
+
+
             url = 'http://www.portaltransparencia.gov.br/PortalTransparenciaListaCidades.asp?Exercicio=2004&SelecaoUF=1&SiglaUF=%s' % uf
 
             counter = PageCounter()
@@ -104,14 +106,17 @@ if __name__ == '__main__':
             page_count = counter.get_page_count()
 
             # remover para poder coletar todas as paginas
-            #for page in range(1, page_count + 1):
-            for page in range(1, 3):
-                url_template = 'http://www.portaltransparencia.gov.br/PortalTransparenciaListaCidades.asp?Exercicio=2004&SelecaoUF=1&SiglaUF=PE&Pagina=%d'
+            for page in range(1, page_count + 1):
+            # for page in range(1, 3):
+                url_template = 'http://www.portaltransparencia.gov.br/PortalTransparenciaListaCidades.asp?Exercicio=2004&SelecaoUF=1&SiglaUF=%s&Pagina=%d'
 
                 parser = CityListParser()
-                data = urlopen(url_template % page).read()
+                data = urlopen(url_template % (uf, page)).read()
                 data = unicode(data, 'iso-8859-1')
                 parser.feed(data)
+
+                # o parser tem uma lista de cidades, onde cada uma tem o formato (codigo, nome), disponivel atraves do metodo get_city_list()
+
 
 
 
