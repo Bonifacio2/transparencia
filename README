@@ -1,4 +1,4 @@
-A ideia original era coletar apenas os dados da minha cidade, mas ao longo do projeto fui vendo que com um pequeno esforço era possível tornar o script mais flexível e assim usá-lo para coletar dados de qualquer cidade do país.
+A ideia original era coletar apenas os dados da minha cidade, mas ao longo do projeto fui vendo que com um pequeno esforÁo era possÌvel tornar o script mais flexÌvel e assim us·-lo para coletar dados de qualquer cidade do paÌs.
 
 ## Como usar
 ```
@@ -10,5 +10,5 @@ $ python main.py
 
 - Dar um nome mais adequado a TParser
 - Delegar algumas das responsabilidades de TParser
-- Aceitar siglas de estado como parâmetro (e listar municipios e respectivos codigos)
-- Aceitar códigos dos municípios para baixar dados específicos pra eles
+- Aceitar siglas de estado como par‚metro (e listar municipios e respectivos codigos)
+- Aceitar cÛdigos dos municÌpios para baixar dados especÌficos pra eles
