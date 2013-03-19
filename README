@@ -2,8 +2,8 @@ A ideia original era coletar apenas os dados da minha cidade, mas ao longo do pr
 
 ## Como usar
 ```
-git clone https://github.com/Bonifacio2/transparencia.git
-python main.py
+$ git clone https://github.com/Bonifacio2/transparencia.git
+$ python main.py
 ```
 
 ## TODO:
