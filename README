@@ -1,1 +1,14 @@
-Ah, muleque!
+A ideia original era coletar apenas os dados da minha cidade, mas ao longo do projeto fui vendo que com um pequeno esforço era possível tornar o script mais flexível e assim usá-lo para coletar dados de qualquer cidade do país.
+
+## Como usar
+```
+git clone https://github.com/Bonifacio2/transparencia.git
+python main.py
+```
+
+## TODO:
+
+- Dar um nome mais adequado a TParser
+- Delegar algumas das responsabilidades de TParser
+- Aceitar siglas de estado como parâmetro (e listar municipios e respectivos codigos)
+- Aceitar códigos dos municípios para baixar dados específicos pra eles
