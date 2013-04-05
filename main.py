@@ -1,10 +1,12 @@
 from HTMLParser import HTMLParser
+from CityListParser import CityListParser
 from PageCounter import PageCounter
 from urllib2 import urlopen
 
 from unicodedata import normalize
 
 import os
+import sys
 # eliminar modulo csv
 import csv
 
@@ -79,61 +81,64 @@ class TParser(HTMLParser, object):
 
 if __name__ == '__main__':
 
-    # tratar entrada de estado e municipio
+    if len(sys.argv) == 1:
+        print 'passe o argumento, meu filho'
+    else:
+        uf = sys.argv[1].upper()
+        ufs = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO']
+        if uf not in ufs:
+            print 'uf invalido. os validos sao os seguintes:', ufs
+        else:
+            if len(sys.argv) > 2:
 
-    # corrigir data para fim em 2013
-    years = range(2004, 2013)
+                try:
+                    cod_mun = int(sys.argv[2])
+                except ValueError as value_error:
+                    print "codigo de cidade invalido. tente 'python main.py <UF>' para listar os nomes e respectivos codigos das cidades do seu estado."
+                    print "para baixar dados de uma cidade, use: 'main.py <UF> <codigo da cidade>'"
 
-    cod_mun = 2235
+                years = range(2004, 2013)
 
-    url_template = 'http://www.portaltransparencia.gov.br/PortalTransparenciaListaAcoes.asp?Exercicio=%d&SelecaoUF=1&SiglaUF=PB&CodMun=%d&Pagina=%d'
+                url_template = 'http://www.portaltransparencia.gov.br/PortalTransparenciaListaAcoes.asp?Exercicio=%d&SelecaoUF=1&SiglaUF=PB&CodMun=%d&Pagina=%d'
 
-    for year in years:
-        counter = PageCounter()
-        url = url_template % (year, cod_mun, 1)
+                for year in years:
+                    counter = PageCounter()
+                    url = url_template % (year, cod_mun, 1)
 
-        data = urlopen(url).read()
-        data = unicode(data, 'iso-8859-1')
-        counter.feed(data)
+                    data = urlopen(url).read()
+                    data = unicode(data, 'iso-8859-1')
+                    counter.feed(data)
 
-        page_count = counter.get_page_count()
+                    page_count = counter.get_page_count()
 
-        for page in range(1, page_count + 1):
-            print 'parsing year %d, page %d' % (year, page)
+                    for page in range(1, page_count + 1):
+                        print 'parsing year %d, page %d' % (year, page)
 
-            url = url_template % (year, cod_mun, page)
-            data = urlopen(url).read()
-            data = unicode(data, 'iso-8859-1')
+                        url = url_template % (year, cod_mun, page)
+                        data = urlopen(url).read()
+                        data = unicode(data, 'iso-8859-1')
 
-            parser = TParser(year)
-            parser.feed(data)
+                        parser = TParser(year)
+                        parser.feed(data)
+
+            else:
+                url = 'http://www.portaltransparencia.gov.br/PortalTransparenciaListaCidades.asp?Exercicio=2004&SelecaoUF=1&SiglaUF=%s' % uf
+
+                counter = PageCounter()
+                data = urlopen(url).read()
+                data = unicode(data, 'iso-8859-1')
+                counter.feed(data)
+
+                page_count = counter.get_page_count()
+
+                for page in range(1, page_count + 1):
+                    url_template = 'http://www.portaltransparencia.gov.br/PortalTransparenciaListaCidades.asp?Exercicio=2004&SelecaoUF=1&SiglaUF=%s&Pagina=%d'
+
+                    parser = CityListParser()
+                    data = urlopen(url_template % (uf, page)).read()
+                    data = unicode(data, 'iso-8859-1')
+                    parser.feed(data)
+
+                    for city in parser.get_city_list():
+                        print city[0], '-', city[1]
     
-    
-    # if os.path.exists('page.html'):
-    #     f = open('page.html')
-    #     data = f.read()
-    #     f.close()
-    # else:
-    #     try:
-    #         print 'file not found. downloading it.'
-    #         data = urlopen(url).read()
-    #         f = open('page.html','w')
-    #         f.write(data)
-    #         f.close()
-    #     except Exception:
-    #         print 'deu pau, viu?'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,8 +1,6 @@
 from HTMLParser import HTMLParser
 from unicodedata import normalize
 from urllib2 import urlopen
-import os
-import sys
 
 from PageCounter import PageCounter
 
@@ -60,7 +58,6 @@ class CityListParser(HTMLParser, object):
             self.temp_content = ''
 
         if self.parsing_first_child and tag == 'td' and not self.parsing_a:
-            print self.city_code, '-', self.city_name
             self.parsing_first_child = False
 
             if len(self.city_name) > 0:
@@ -75,67 +72,3 @@ class CityListParser(HTMLParser, object):
 
     def get_city_list(self):
         return self.city_list
-
-if __name__ == '__main__':
-
-    if len(sys.argv) == 1:
-        print 'passe o argumento, meu filho'
-    else:
-        uf = sys.argv[1].upper()
-        ufs = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO']
-        if uf not in ufs:
-            print 'uf invalido. os validos sao os seguintes:', ufs
-        else:
-
-            
-            if len(sys.argv) > 2:
-                # checa se ha um municipio com o codigo passado para a uf passada
-                pass
-            else:
-                pass
-                # lista codigo das cidades do estado selecionado
-
-
-            url = 'http://www.portaltransparencia.gov.br/PortalTransparenciaListaCidades.asp?Exercicio=2004&SelecaoUF=1&SiglaUF=%s' % uf
-
-            counter = PageCounter()
-            data = urlopen(url).read()
-            data = unicode(data, 'iso-8859-1')
-            counter.feed(data)
-
-            page_count = counter.get_page_count()
-
-            # remover para poder coletar todas as paginas
-            for page in range(1, page_count + 1):
-            # for page in range(1, 3):
-                url_template = 'http://www.portaltransparencia.gov.br/PortalTransparenciaListaCidades.asp?Exercicio=2004&SelecaoUF=1&SiglaUF=%s&Pagina=%d'
-
-                parser = CityListParser()
-                data = urlopen(url_template % (uf, page)).read()
-                data = unicode(data, 'iso-8859-1')
-                parser.feed(data)
-
-                # o parser tem uma lista de cidades, onde cada uma tem o formato (codigo, nome), disponivel atraves do metodo get_city_list()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
