@@ -13,3 +13,6 @@ $ python main.py <UF> <codigo da cidade> # baixa os dados da cidade especificada
 - Dar um nome mais adequado a TParser
 - Delegar algumas das responsabilidades de TParser
 - tratar casos onde o codigo da cidade nao eh valido
+
+- trocar virgulas por pontos na coluna de valor
+- separar codigo da descricao da coluna acao governamental
